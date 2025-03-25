@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="flex justify-center bg-gray-200">
+    <div
+      id="mainDiv"
+      class="h-screen w-screen bg-gray-200 flex flex-col container py-5 px-5 mb-5 gap-8 items-center"
+    >
+      <!-- Container for searching -->
+      <div
+        id="searchDiv"
+        class="flex backdrop-blur-md bg-transparent pr-5 w-full sticky"
+      >
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search by name or auther"
+          class="w-full bg-white py-4 px-4 rounded-tl-2xl rounded-bl-2xl border-r-1"
+        />
+        <select
+          id="countries"
+          class="bg-white text-sm rounded-tr-2xl rounded-br-2xl block w-fit p-2.5"
+        >
+          <option selected>Sort By</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+        </select>
+      </div>
+      <div
+        id="bookContainer"
+        class="grid 2xl:grid-cols-4 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-8 pr-5 grid-cols-1 place-items-center w-full"
+      >
+        <!-- <div class="bg-white rounded-2xl shadow-xl flex flex-col relative">
+          <label
+            class="bg-zinc-400 text-base text-slate-900 absolute top-0 rounded-tr-2xl right-0 px-2"
+            >2006-04-04
+          </label>
+          <img
+            class="rounded-tl-2xl rounded-tr-2xl"
+            width="300"
+            height="100"
+            src="http://books.google.com/books/content?id=KA9QDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+            alt=""
+          />
+          <div
+            class="bg-zinc-400 px-4 flex flex-col py-2 rounded-bl-2xl rounded-br-2xl"
+          >
+            <label class="text-sm font-semibold sm:text-base text-slate-900"
+              >Practices of an Agile Developer</label
+            >
+            <label class="text-sm text-slate-700"
+              >Author: Venkat Subramaniam, Andy Hunt</label
+            >
+            <label class="text-sm text-slate-700"
+              >Publisher: Pragmatic Bookshelf</label
+            >
+          </div>
+        </div> -->
+      </div>
+      <button
+        class="cursor-pointer px-8 py-4 border-1 w-fit items-center rounded-lg"
+      >
+        Load More
+      </button>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
