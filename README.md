@@ -12,11 +12,11 @@ This Application is buit using html, tailwind and vanilla JS.
 
 ## Screenshots
 
-![ScreenShot](https://i.postimg.cc/jjs3Wjdm/Screenshot-2025-03-26-at-6-39-25-AM.png)
+![ScreenShot](./screenshot/1.png)
 
-![ScreenShot](https://i.postimg.cc/XJPsDcc6/Screenshot-2025-03-26-at-6-39-38-AM.png)
+![ScreenShot](./screenshot/2.png)
 
-![ScreenShot](https://i.postimg.cc/yNvQ0zDd/Screenshot-2025-03-26-at-6-39-49-AM.png)
+![ScreenShot](./screenshot/3.png)
 
 ## Deployment link
 
