@@ -141,7 +141,8 @@ async function checkScrollPoistion() {
       bookGridContainer.appendChild(loadingCard);
 
       await fetchData(url);
-      bookGridContainer.removeChild(loadingCard);
+      loadingCard.remove();
+      // bookGridContainer.removeChild(loadingCard);
     }
   }
 }
