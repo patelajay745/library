@@ -267,7 +267,7 @@ function createBookCardForList({
   // Create main container div
   const container = document.createElement("div");
   container.className =
-    "flex flex-row w-full border-1 border-gray-300 rounded-lg";
+    "flex flex-row w-full border-1 border-gray-300 rounded-lg cursor-pointer border-1 border-zinc-500  transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-101";
 
   // Create image element
   const img = document.createElement("img");
