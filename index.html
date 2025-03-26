@@ -9,33 +9,47 @@
   <body class="flex justify-center bg-gray-200">
     <div
       id="mainDiv"
-      class="h-screen w-screen bg-gray-200 flex flex-col container py-5 px-5 mb-5 gap-8 items-center"
+      class="bg-gray-200 flex flex-col container py-5 px-5 mb-5 gap-8 items-center"
     >
       <!-- Container for searching -->
+
       <div
         id="searchDiv"
-        class="flex backdrop-blur-md bg-transparent pr-5 w-full sticky"
+        class="flex bg-white p-4 pr-5 w-full rounded-xl gap-4 sm:flex-row flex-col"
       >
         <input
           id="searchInput"
           type="text"
           placeholder="Search by name or auther"
-          class="w-full bg-white py-4 px-4 rounded-tl-2xl rounded-bl-2xl border-r-1"
+          class="w-full bg-white py-2 px-4 rounded-xl border-1 border-gray-300"
         />
-        <select
-          id="countries"
-          class="bg-white text-sm rounded-tr-2xl rounded-br-2xl block w-fit p-2.5"
-        >
-          <option selected>Sort By</option>
-          <option value="US">United States</option>
-          <option value="CA">Canada</option>
-          <option value="FR">France</option>
-          <option value="DE">Germany</option>
-        </select>
+
+        <div class="flex gap-4 sm:w-fit w-full justify-between">
+          <select
+            id="sortBySelect"
+            class="bg-white text-sm py-2 px-4 border-1 border-gray-300 rounded-xl"
+          >
+            <option selected value="title">SortBy</option>
+            <option value="title">Title (A-Z)</option>
+            <option value="date">Date</option>
+          </select>
+
+          <div class="bg-gray-200 py-2 px-4 rounded-xl flex gap-2">
+            <button
+              id="btnGrid"
+              class="bg-white px-4 py-2 rounded-lg shadow-xl"
+            >
+              Grid
+            </button>
+            <button id="btnList">List</button>
+          </div>
+        </div>
       </div>
+
+      <!-- Grid View -->
       <div
-        id="bookContainer"
-        class="grid 2xl:grid-cols-4 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-8 pr-5 grid-cols-1 place-items-center w-full"
+        id="bookGridContainer"
+        class="grid 2xl:grid-cols-4 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-8 pr-5 grid-cols-1 place-items-center w-full hidden"
       >
         <!-- <div class="bg-white rounded-2xl shadow-xl flex flex-col relative">
           <label
@@ -61,6 +75,32 @@
             <label class="text-sm text-slate-700"
               >Publisher: Pragmatic Bookshelf</label
             >
+          </div>
+        </div> -->
+      </div>
+
+      <!-- List View -->
+      <div
+        id="bookListContainer"
+        class="flex gap-4 w-full h-full bg-white p-4 rounded-2xl flex-col hidden"
+      >
+        <!-- <div class="flex flex-row w-full border-1 border-gray-300 rounded-lg">
+          <img
+            class="rounded-tl-2xl rounded-bl-2xl"
+            width="150"
+            src="http://books.google.com/books/content?id=KA9QDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+            alt=""
+          />
+          <div
+            class="px-4 flex flex-col py-2 rounded-bl-2xl rounded-br-2xl gap-0 sm:gap-1 md:gap-2"
+          >
+            <label
+              class="font-semibold text-slate-900 sm:text-base sm:text-md md:text-lg lg:text-xl 2xl:text-2xl"
+              >Practices of an Agile Developer</label
+            >
+            <label class="text-gray-400">Venkat Subramaniam, Andy Hunt</label>
+            <label class="text-gray-400">Publisher: Pragmatic Bookshelf</label>
+            <label class="text-gray-400">Published Date: 2025-01-05</label>
           </div>
         </div> -->
       </div>

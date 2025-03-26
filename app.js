@@ -1,25 +1,30 @@
-const bookContainer = document.getElementById("bookContainer");
+const bookGridContainer = document.getElementById("bookGridContainer");
+const bookListContainer = document.getElementById("bookListContainer");
 const searchInput = document.getElementById("searchInput");
 const mainDiv = document.getElementById("mainDiv");
+const btnGrid = document.getElementById("btnGrid");
+const btnList = document.getElementById("btnList");
+const sortBySelect = document.getElementById("sortBySelect");
 
 let books = [];
 let currentPage = 1;
-let totalitems = 0;
+let totalPages = 0;
+let currentView = "grid";
+let searchedBook;
 
 async function fetchData(url) {
-  books = [];
   // add try catch here
   const response = await fetch(url);
   const data = await response.json();
 
-  totalitems = data.data.totalItems;
+  totalPages = data.data.totalPages;
 
   data.data.data.map((book) => {
     const id = book.id;
     const title = book.volumeInfo.title;
-    const authors = book.volumeInfo.authors.join();
+    const authors = book.volumeInfo.authors?.join();
     const publisher = book.volumeInfo.publisher;
-    const thumbnail = book.volumeInfo.imageLinks.smallThumbnail;
+    const thumbnail = book.volumeInfo.imageLinks?.smallThumbnail || "";
     const publishedDate = book.volumeInfo.publishedDate;
     const infoLink = book.volumeInfo.infoLink;
 
@@ -47,19 +52,147 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function loadData(arr) {
-  //bookContainer.innerHTML = "";
+  console.log(arr);
+  bookGridContainer.innerHTML = "";
+  bookListContainer.innerHTML = "";
   arr.map((book) => {
-    const card = createBookCard({ ...book });
-    card.addEventListener("click", function () {
-      window.open(book.infoLink);
-    });
-    bookContainer.appendChild(card);
+    if (currentView === "grid") {
+      const card = createBookCardForGrid({ ...book });
+      card.addEventListener("click", function () {
+        window.open(book.infoLink);
+      });
+      bookGridContainer.appendChild(card);
+      bookListContainer.classList.add("hidden");
+      bookGridContainer.classList.remove("hidden");
+    } else {
+      const card = createBookCardForList({ ...book });
+      card.addEventListener("click", function () {
+        window.open(book.infoLink);
+      });
+      bookListContainer.appendChild(card);
+      bookGridContainer.classList.add("hidden");
+      bookListContainer.classList.remove("hidden");
+    }
   });
 
   const loadMoreBtn = document.createElement("button");
 }
 
-function createBookCard({
+searchInput.addEventListener("input", function () {
+  searchedBook = [];
+  const inputText = searchInput.value.toString().trim().toLowerCase();
+
+  searchedBook = books.filter((book) => {
+    const authors = book.authors ? book.authors.toLowerCase() : "";
+    const title = book.title ? book.title.toLowerCase() : "";
+
+    return authors.includes(inputText) || title.includes(inputText);
+  });
+
+  loadData(searchedBook);
+});
+
+btnGrid.addEventListener("click", () => displayBtnClick(btnGrid));
+btnList.addEventListener("click", () => displayBtnClick(btnList));
+
+function displayBtnClick(target) {
+  if (target.id === "btnList") {
+    btnGrid.classList = "";
+    btnList.classList = "bg-white px-4 py-2 rounded-lg shadow-xl";
+    currentView = "list";
+
+    loadData(books);
+    return;
+  }
+
+  btnList.classList = "";
+  currentView = "grid";
+  loadData(books);
+
+  btnGrid.classList = "bg-white px-4 py-2 rounded-lg shadow-xl";
+}
+
+//debouncing to stop getching data again and again
+function debounce(fn, delay) {
+  let timeoutId;
+
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, ...args), delay);
+  };
+}
+
+// to checking position and fetch data
+async function checkScrollPoistion() {
+  // if (isLoading) return;
+
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+    if (currentPage <= totalPages) {
+      currentPage = currentPage + 1;
+      const url = `https://api.freeapi.app/api/v1/public/books?page=${currentPage}&limit=10`;
+
+      const loadingCard = createLoadingBookCard();
+      bookGridContainer.appendChild(loadingCard);
+
+      await fetchData(url);
+      bookGridContainer.removeChild(loadingCard);
+    }
+  }
+}
+
+const debouncedScrollHandler = debounce(checkScrollPoistion, 200);
+
+window.addEventListener("scroll", debouncedScrollHandler);
+
+function createLoadingBookCard() {
+  // Create main div container with same base styling
+  const mainDiv = document.createElement("div");
+  mainDiv.className =
+    "bg-white rounded-2xl shadow-xl flex w-fit flex-col relative w-fit h-fit max-w-62 cursor-pointer border-2 border-zinc-500 transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-105";
+
+  // Create and configure loading label
+  const loadingLabel = document.createElement("label");
+  loadingLabel.className =
+    "bg-gray-300 text-base text-zinc-900 absolute top-0 rounded-tr-2xl right-0 px-2 ";
+  loadingLabel.textContent = "Loading...";
+
+  // Create placeholder image area
+  const imgPlaceholder = document.createElement("div");
+  imgPlaceholder.className =
+    "rounded-tl-2xl rounded-tr-2xl w-72 h-72  border-zinc-500 bg-gray-200 animate-pulse";
+
+  // Create content container div
+  const contentDiv = document.createElement("div");
+  contentDiv.className =
+    "bg-white px-4 flex flex-col py-2 rounded-bl-2xl rounded-br-2xl h-25 overflow-auto gap-1";
+
+  // Create placeholder title
+  const titlePlaceholder = document.createElement("div");
+  titlePlaceholder.className = "h-4 bg-gray-200 rounded w-3/4 animate-pulse";
+
+  // Create placeholder author
+  const authorPlaceholder = document.createElement("div");
+  authorPlaceholder.className = "h-4 bg-gray-200 rounded w-2/3 animate-pulse";
+
+  // Create placeholder publisher
+  const publisherPlaceholder = document.createElement("div");
+  publisherPlaceholder.className =
+    "h-4 bg-gray-200 rounded w-1/2 animate-pulse";
+
+  // Assemble the structure
+  contentDiv.appendChild(titlePlaceholder);
+  contentDiv.appendChild(authorPlaceholder);
+  contentDiv.appendChild(publisherPlaceholder);
+
+  mainDiv.appendChild(loadingLabel);
+  mainDiv.appendChild(imgPlaceholder);
+  mainDiv.appendChild(contentDiv);
+
+  // Return the complete loading element
+  return mainDiv;
+}
+
+function createBookCardForGrid({
   publishedDate,
   thumbnail,
   title,
@@ -81,7 +214,7 @@ function createBookCard({
   const img = document.createElement("img");
   img.className =
     "rounded-tl-2xl rounded-tr-2xl w-72 h-72 border-b-1 border-zinc-500";
-  img.src = thumbnail;
+  img.src = thumbnail || "./assets/noprev.png";
   img.alt = "";
 
   // Create content container div
@@ -99,7 +232,7 @@ function createBookCard({
   const authorLabel = document.createElement("label");
   authorLabel.className = "text-sm text-slate-700";
   let authorsString = authors;
-  if (authorsString.length >= 25)
+  if (authorsString && authorsString.length >= 25)
     authorsString = `${authorsString.substring(0, 25)}...`;
   authorLabel.title = authors;
   authorLabel.textContent = `${authorsString}`;
@@ -107,7 +240,8 @@ function createBookCard({
   // Create and configure publisher label
   const publisherLabel = document.createElement("label");
   publisherLabel.className = "text-sm text-slate-700";
-  if (publisher.length >= 20) publisher = `${publisher.substring(0, 18)}...`;
+  if (publisher && publisher.length >= 20)
+    publisher = `${publisher.substring(0, 18)}...`;
   publisherLabel.textContent = `Publisher: ${publisher}`;
 
   // Assemble the structure
@@ -123,130 +257,78 @@ function createBookCard({
   return mainDiv;
 }
 
-searchInput.addEventListener("input", function () {
-  let searchedBook = [];
-  const inputText = searchInput.value.toString().trim().toLowerCase();
-  console.log(inputText.toLowerCase());
-
-  searchedBook = books.filter((book) => {
-    const authors = book.authors ? book.authors.toLowerCase() : "";
-    const title = book.title ? book.title.toLowerCase() : "";
-
-    return authors.includes(inputText) || title.includes(inputText);
-  });
-
-  loadData(searchedBook);
-});
-
-function createPagination(totalEntries, currentPage = 1, itemsPerPage = 10) {
-  // Calculate total pages and current range
-  const totalPages = Math.ceil(totalEntries / itemsPerPage);
-
-  const startEntry = (currentPage - 1) * itemsPerPage + 1;
-  const endEntry = Math.min(currentPage * itemsPerPage, totalEntries);
-
-  // Main container
+function createBookCardForList({
+  publishedDate,
+  thumbnail,
+  title,
+  authors,
+  publisher,
+}) {
+  // Create main container div
   const container = document.createElement("div");
-  container.className = "flex flex-col items-center";
+  container.className =
+    "flex flex-row w-full border-1 border-gray-300 rounded-lg";
 
-  // Help text
-  const helpText = document.createElement("span");
-  helpText.className = "text-sm text-zinc-900 ";
-  helpText.innerHTML = `Showing 
-        <span class="font-semibold text-zinc-900 ">${startEntry}</span> to 
-        <span class="font-semibold text-zinc-900 ">${endEntry}</span> of 
-        <span class="font-semibold text-zinc-900 ">${totalEntries}</span> 
-        Entries`;
+  // Create image element
+  const img = document.createElement("img");
+  img.className = "rounded-tl-lg rounded-bl-lg";
+  img.width = 150;
+  img.src = thumbnail;
+  img.alt = name;
 
-  // Button container
-  const buttonContainer = document.createElement("div");
-  buttonContainer.className = "inline-flex mt-2 xs:mt-0";
+  // Create content container div
+  const contentDiv = document.createElement("div");
+  contentDiv.className =
+    "px-4 flex flex-col py-2 rounded-bl-2xl rounded-br-2xl gap-0 sm:gap-1 md:gap-2";
 
-  // Previous button
-  const prevButton = document.createElement("button");
-  prevButton.className =
-    "flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white";
-  prevButton.disabled = currentPage === 1;
+  // Create title label
+  const titleLabel = document.createElement("label");
+  titleLabel.className =
+    "font-semibold text-slate-900 sm:text-base sm:text-md md:text-lg lg:text-xl 2xl:text-2xl";
+  titleLabel.textContent = title;
 
-  const prevSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  prevSvg.className = "w-3.5 h-3.5 me-2 rtl:rotate-180";
-  prevSvg.setAttribute("aria-hidden", "true");
-  prevSvg.setAttribute("fill", "none");
-  prevSvg.setAttribute("viewBox", "0 0 14 10");
+  // Create authors label
+  const authorsLabel = document.createElement("label");
+  authorsLabel.className = "text-gray-400";
+  authorsLabel.textContent = authors;
 
-  const prevPath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  prevPath.setAttribute("stroke", "currentColor");
-  prevPath.setAttribute("stroke-linecap", "round");
-  prevPath.setAttribute("stroke-linejoin", "round");
-  prevPath.setAttribute("stroke-width", "2");
-  prevPath.setAttribute("d", "M13 5H1m0 0 4 4M1 5l4-4");
+  // Create publisher label
+  const publisherLabel = document.createElement("label");
+  publisherLabel.className = "text-gray-400";
+  publisherLabel.textContent = `Publisher: ${publisher}`;
 
-  prevSvg.appendChild(prevPath);
-  prevButton.appendChild(prevSvg);
-  prevButton.appendChild(document.createTextNode("Prev"));
+  // Create published date label
+  const dateLabel = document.createElement("label");
+  dateLabel.className = "text-gray-400";
+  dateLabel.textContent = `Published Date: ${publishedDate}`;
 
-  // Next button
-  const nextButton = document.createElement("button");
-  nextButton.className =
-    "flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white";
-  nextButton.disabled = currentPage === totalPages;
+  // Assemble the card
+  contentDiv.appendChild(titleLabel);
+  contentDiv.appendChild(authorsLabel);
+  contentDiv.appendChild(publisherLabel);
+  contentDiv.appendChild(dateLabel);
 
-  const nextSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  nextSvg.className = "w-3.5 h-3.5 ms-2 rtl:rotate-180";
-  nextSvg.setAttribute("aria-hidden", "true");
-  nextSvg.setAttribute("fill", "none");
-  nextSvg.setAttribute("viewBox", "0 0 14 10");
-
-  const nextPath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  nextPath.setAttribute("stroke", "currentColor");
-  nextPath.setAttribute("stroke-linecap", "round");
-  nextPath.setAttribute("stroke-linejoin", "round");
-  nextPath.setAttribute("stroke-width", "2");
-  nextPath.setAttribute("d", "M1 5h12m0 0L9 1m4 4L9 9");
-
-  nextSvg.appendChild(nextPath);
-  nextButton.appendChild(document.createTextNode("Next"));
-  nextButton.appendChild(nextSvg);
-
-  // Assemble the structure
-  buttonContainer.appendChild(prevButton);
-  buttonContainer.appendChild(nextButton);
-  container.appendChild(helpText);
-  container.appendChild(buttonContainer);
-
-  // Add click handlers
-  prevButton.onclick = () => {
-    if (currentPage > 1) {
-      updatePagination(currentPage - 1);
-    }
-  };
-
-  nextButton.onclick = () => {
-    if (currentPage < totalPages) {
-      updatePagination(currentPage + 1);
-    }
-  };
-
-  // Function to update pagination
-  async function updatePagination(newPage) {
-    const newPagination = createPagination(totalEntries, newPage, itemsPerPage);
-    container.replaceWith(newPagination);
-    // You could add a callback here to load new data
-
-    console.log(newPage);
-
-    currentPage = newPage;
-
-    await fetchData(
-      `https://api.freeapi.app/api/v1/public/books?page=${newPage}&limit=10`
-    );
-  }
+  container.appendChild(img);
+  container.appendChild(contentDiv);
 
   return container;
 }
+
+sortBySelect.addEventListener("change", function () {
+  console.log(sortBySelect.selectedIndex);
+  switch (sortBySelect.selectedIndex) {
+    case 0:
+      return;
+    case 1:
+      loadData(books.sort((a, b) => a.title.localeCompare(b.title)));
+      return;
+    case 2:
+      loadData(
+        books.sort((a, b) => {
+          const dateA = new Date(a.publishedDate);
+          const dateB = new Date(b.publishedDate);
+          return dateA - dateB;
+        })
+      );
+  }
+});
