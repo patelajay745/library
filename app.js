@@ -104,19 +104,20 @@ btnList.addEventListener("click", () => displayBtnClick(btnList));
 
 function displayBtnClick(target) {
   if (target.id === "btnList") {
-    btnGrid.classList = "";
-    btnList.classList = "bg-white px-4 py-2 rounded-lg shadow-xl";
+    btnGrid.classList = "cursor-pointer";
+    btnList.classList =
+      "bg-white px-4 py-2 rounded-lg shadow-xl cursor-pointer";
     currentView = "list";
 
     loadData(books);
     return;
   }
 
-  btnList.classList = "";
+  btnList.classList = "cursor-pointer";
   currentView = "grid";
   loadData(books);
 
-  btnGrid.classList = "bg-white px-4 py-2 rounded-lg shadow-xl";
+  btnGrid.classList = "bg-white px-4 py-2 rounded-lg shadow-xl cursor-pointer";
 }
 
 //debouncing to stop getting data again and again
