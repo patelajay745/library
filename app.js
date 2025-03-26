@@ -12,47 +12,54 @@ let totalPages = 0;
 let currentView = "grid";
 let searchedBook;
 
-async function fetchData(url) {
-  // add try catch here
-  const response = await fetch(url);
-  const data = await response.json();
-
-  totalPages = data.data.totalPages;
-
-  data.data.data.map((book) => {
-    const id = book.id;
-    const title = book.volumeInfo.title;
-    const authors = book.volumeInfo.authors?.join();
-    const publisher = book.volumeInfo.publisher;
-    const thumbnail = book.volumeInfo.imageLinks?.smallThumbnail || "";
-    const publishedDate = book.volumeInfo.publishedDate;
-    const infoLink = book.volumeInfo.infoLink;
-
-    books.push({
-      id,
-      title,
-      authors,
-      publisher,
-      thumbnail,
-      publishedDate,
-      infoLink,
-    });
-  });
-
-  loadData(books);
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchData(
     `https://api.freeapi.app/api/v1/public/books?page=${currentPage}&limit=10`
   );
-
-  //   const pagination = createPagination(totalitems, 1, 10);
-  //   mainDiv.appendChild(pagination);
 });
 
+//fetching data from url and adding to array
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    totalPages = data.data.totalPages;
+
+    data.data.data.map((book) => {
+      const id = book.id;
+      const title = book.volumeInfo.title;
+      const authors = book.volumeInfo.authors?.join();
+      const publisher = book.volumeInfo.publisher;
+      const thumbnail = book.volumeInfo.imageLinks?.smallThumbnail || "";
+      const publishedDate = book.volumeInfo.publishedDate;
+      const infoLink = book.volumeInfo.infoLink;
+
+      books.push({
+        id,
+        title,
+        authors,
+        publisher,
+        thumbnail,
+        publishedDate,
+        infoLink,
+      });
+    });
+
+    loadData(books);
+  } catch (error) {
+    const errorCard = ErrorCard(
+      "Failed to fetch books. Please try again later"
+    );
+    bookListContainer.appendChild(errorCard);
+    bookGridContainer.classList.add("hidden");
+    bookListContainer.classList.add("text-center");
+    bookListContainer.classList.remove("hidden");
+  }
+}
+
+// loop through array and create card for each book
 function loadData(arr) {
-  console.log(arr);
   bookGridContainer.innerHTML = "";
   bookListContainer.innerHTML = "";
   arr.map((book) => {
@@ -112,7 +119,7 @@ function displayBtnClick(target) {
   btnGrid.classList = "bg-white px-4 py-2 rounded-lg shadow-xl";
 }
 
-//debouncing to stop getching data again and again
+//debouncing to stop getting data again and again
 function debounce(fn, delay) {
   let timeoutId;
 
@@ -124,8 +131,6 @@ function debounce(fn, delay) {
 
 // to checking position and fetch data
 async function checkScrollPoistion() {
-  // if (isLoading) return;
-
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
     if (currentPage <= totalPages) {
       currentPage = currentPage + 1;
@@ -332,3 +337,10 @@ sortBySelect.addEventListener("change", function () {
       );
   }
 });
+
+function ErrorCard(message) {
+  const div = document.createElement("div");
+  div.classList = "text-3xl text-red-500";
+  div.textContent = message;
+  return div;
+}
